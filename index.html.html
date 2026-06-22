@@ -1,0 +1,1019 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Social CRM — Bastidas S.A.C.</title>
+<style>
+:root{
+  --am:#F5A623;--amd:#C47A00;--aml:#FFF8E7;
+  --neg:#1A1A1A;--gris:#6B6B6B;--gl:#F4F4F2;--bd:#E0DDD5;--wh:#fff;
+  --vd:#2D7D46;--vdl:#EAF5EE;--rj:#C0392B;--rjl:#FDECEA;
+  --mo:#5A3EA1;--mol:#F0ECFA;--az:#1A6BAD;--azl:#E8F3FB;
+  --font:'Segoe UI',Arial,sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--font);background:var(--gl);color:var(--neg);font-size:14px}
+.sidebar{position:fixed;top:0;left:0;width:220px;height:100vh;background:var(--neg);display:flex;flex-direction:column;z-index:100;overflow-y:auto}
+.sb-brand{padding:20px 16px 14px;border-bottom:1px solid rgba(255,255,255,0.1)}
+.sb-logo{background:var(--am);color:var(--neg);font-size:10px;font-weight:700;letter-spacing:1px;padding:3px 8px;border-radius:4px;display:inline-block;margin-bottom:6px}
+.sb-name{color:#fff;font-size:14px;font-weight:600}
+.sb-sub{color:rgba(255,255,255,0.4);font-size:11px;margin-top:2px}
+.sb-sec{padding:12px 10px 4px;color:rgba(255,255,255,0.3);font-size:10px;letter-spacing:1px;text-transform:uppercase}
+.nav-item{display:flex;align-items:center;gap:10px;padding:9px 16px;color:rgba(255,255,255,0.6);cursor:pointer;border-radius:6px;margin:1px 6px;font-size:13px;transition:all .15s}
+.nav-item:hover{background:rgba(255,255,255,0.07);color:#fff}
+.nav-item.active{background:var(--am);color:var(--neg);font-weight:600}
+.sb-sync{margin-top:auto;padding:12px 16px;border-top:1px solid rgba(255,255,255,0.1)}
+.sync-dot{width:8px;height:8px;border-radius:50%;display:inline-block;margin-right:6px}
+.sync-ok{background:#2ecc71}
+.sync-err{background:#e74c3c}
+.sync-load{background:#f39c12;animation:pulse 1s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+.sync-txt{font-size:11px;color:rgba(255,255,255,0.5)}
+.main{margin-left:220px;min-height:100vh}
+.topbar{background:var(--wh);border-bottom:1px solid var(--bd);padding:12px 24px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:50}
+.topbar-title{font-size:16px;font-weight:600}
+.topbar-right{display:flex;align-items:center;gap:10px}
+.topbar-badge{background:var(--aml);color:var(--amd);font-size:11px;padding:3px 10px;border-radius:20px;font-weight:600}
+.btn-reload{background:var(--am);color:var(--neg);border:none;border-radius:6px;padding:6px 12px;font-size:12px;cursor:pointer;font-weight:600;display:flex;align-items:center;gap:5px}
+.btn-reload:hover{background:var(--amd);color:#fff}
+.content{padding:20px 24px}
+.page{display:none}.page.active{display:block}
+.kpi-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px;margin-bottom:20px}
+.kpi{background:var(--wh);border:1px solid var(--bd);border-radius:10px;padding:14px 16px}
+.kpi.accent{border-left:3px solid var(--am)}
+.kpi-label{font-size:11px;color:var(--gris);margin-bottom:4px}
+.kpi-val{font-size:26px;font-weight:700}
+.kpi-sub{font-size:11px;color:var(--gris);margin-top:2px}
+.charts-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:20px}
+.chart-card{background:var(--wh);border:1px solid var(--bd);border-radius:10px;padding:16px}
+.chart-title{font-size:12px;font-weight:600;color:var(--gris);margin-bottom:10px;text-transform:uppercase;letter-spacing:.5px}
+.table-card{background:var(--wh);border:1px solid var(--bd);border-radius:10px;overflow:hidden;margin-bottom:16px}
+.table-header{padding:14px 16px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--bd);flex-wrap:wrap;gap:8px}
+.table-header-title{font-size:14px;font-weight:600}
+.search-row{display:flex;gap:8px;flex-wrap:wrap}
+.search-row input,.search-row select{border:1px solid var(--bd);border-radius:6px;padding:6px 10px;font-size:13px;background:var(--gl);outline:none;font-family:var(--font)}
+.search-row input:focus,.search-row select:focus{border-color:var(--am);background:#fff}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{padding:9px 12px;text-align:left;font-size:11px;font-weight:600;color:var(--gris);background:var(--gl);border-bottom:1px solid var(--bd);text-transform:uppercase;letter-spacing:.4px}
+td{padding:9px 12px;border-bottom:1px solid var(--bd)}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:var(--aml)}
+.badge{display:inline-block;padding:2px 9px;border-radius:20px;font-size:11px;font-weight:600}
+.badge-oro{background:var(--mol);color:var(--mo)}
+.badge-regular{background:#FFF3DC;color:#8B5E00}
+.badge-inactivo{background:var(--rjl);color:var(--rj)}
+.table-count{font-size:12px;color:var(--gris);padding:8px 16px;border-top:1px solid var(--bd)}
+.btn{display:inline-flex;align-items:center;gap:6px;padding:7px 14px;border-radius:6px;font-size:13px;cursor:pointer;font-family:var(--font);border:none;font-weight:500;transition:all .15s}
+.btn-primary{background:var(--am);color:var(--neg)}
+.btn-primary:hover{background:var(--amd);color:#fff}
+.btn-wpp{background:#25D366;color:#fff}
+.btn-wpp:hover{background:#1da852}
+.btn-outline{background:transparent;color:var(--neg);border:1px solid var(--bd)}
+.btn-outline:hover{background:var(--gl)}
+.btn-ai{background:linear-gradient(135deg,#667eea,#764ba2);color:#fff}
+.btn-ai:hover{opacity:.9}
+.btn-sm{padding:4px 10px;font-size:12px}
+.camp-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:20px}
+.camp-card{border-radius:10px;padding:16px;border:1px solid}
+.camp-cap{background:var(--vdl);border-color:#A8D5B5}
+.camp-fid{background:var(--mol);border-color:#C5B6E8}
+.camp-rec{background:var(--rjl);border-color:#F5B8B2}
+.camp-icon{font-size:22px;margin-bottom:6px}
+.camp-title{font-size:14px;font-weight:700;margin-bottom:4px}
+.camp-cap .camp-title{color:var(--vd)}
+.camp-fid .camp-title{color:var(--mo)}
+.camp-rec .camp-title{color:var(--rj)}
+.camp-desc{font-size:12px;color:var(--gris);line-height:1.5;margin-bottom:10px}
+.editor-card{background:var(--wh);border:1px solid var(--bd);border-radius:10px;padding:20px;margin-bottom:16px}
+.form-group{margin-bottom:14px}
+.form-label{font-size:12px;font-weight:600;color:var(--gris);margin-bottom:5px;display:block;text-transform:uppercase;letter-spacing:.4px}
+.form-control{width:100%;border:1px solid var(--bd);border-radius:6px;padding:8px 10px;font-size:13px;font-family:var(--font);background:var(--gl);outline:none}
+.form-control:focus{border-color:var(--am);background:#fff}
+textarea.form-control{resize:vertical;min-height:80px}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.wpp-preview{background:#ECE5DD;border-radius:10px;padding:16px;max-width:340px}
+.wpp-bubble{background:#fff;border-radius:8px 8px 8px 0;padding:10px 12px;font-size:13px;line-height:1.5;box-shadow:0 1px 2px rgba(0,0,0,.1);max-width:280px;white-space:pre-wrap;word-break:break-word}
+.wpp-time{font-size:10px;color:#999;text-align:right;margin-top:4px}
+.section-title{font-size:14px;font-weight:700;margin-bottom:12px}
+.section-subtitle{font-size:12px;color:var(--gris);margin-bottom:16px}
+.ltv-formula-box{background:var(--aml);border:1px solid var(--am);border-radius:8px;padding:12px 16px;margin-bottom:16px;font-size:13px;font-weight:600;color:var(--amd)}
+.ltv-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:20px}
+.ltv-card{background:var(--wh);border:1px solid var(--bd);border-radius:10px;padding:16px;text-align:center}
+.ltv-type{font-size:12px;color:var(--gris);margin-bottom:4px}
+.ltv-val{font-size:24px;font-weight:700;margin-bottom:4px}
+.ltv-formula-small{font-size:10px;color:var(--gris)}
+.arch-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px}
+.arch-card{border-radius:10px;padding:16px;border:1px solid}
+.arch-c1{background:var(--azl);border-color:#B0D4EE}
+.arch-c2{background:var(--vdl);border-color:#A8D5B5}
+.arch-c3{background:#FFF3DC;border-color:#FAD080}
+.arch-c4{background:var(--mol);border-color:#C5B6E8}
+.arch-head{font-size:12px;font-weight:700;margin-bottom:10px}
+.arch-c1 .arch-head{color:var(--az)}
+.arch-c2 .arch-head{color:var(--vd)}
+.arch-c3 .arch-head{color:#7A5000}
+.arch-c4 .arch-head{color:var(--mo)}
+.arch-item{font-size:12px;color:var(--gris);padding:3px 0;border-bottom:1px dashed var(--bd)}
+.arch-item:last-child{border-bottom:none}
+.flow-wrap{display:flex;flex-wrap:wrap;gap:6px;align-items:center;background:var(--wh);border:1px solid var(--bd);border-radius:10px;padding:16px;margin-bottom:16px}
+.flow-step{background:var(--gl);border:1px solid var(--bd);border-radius:8px;padding:8px 12px;text-align:center;font-size:12px}
+.flow-step strong{display:block;font-size:13px}
+.flow-step span{color:var(--gris);font-size:11px}
+.flow-arrow{color:var(--am);font-size:18px;font-weight:700}
+.ind-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px}
+.ind-card{background:var(--wh);border:1px solid var(--bd);border-radius:10px;padding:14px;border-left:3px solid var(--am)}
+.ind-label{font-size:11px;color:var(--gris);margin-bottom:4px}
+.ind-val{font-size:20px;font-weight:700}
+/* POSTER GENERATOR */
+.poster-tabs{display:flex;gap:8px;margin-bottom:16px}
+.poster-tab{padding:8px 16px;border-radius:8px;cursor:pointer;font-size:13px;font-weight:500;border:1px solid var(--bd);background:var(--wh);transition:all .15s}
+.poster-tab.active{background:linear-gradient(135deg,#667eea,#764ba2);color:#fff;border-color:transparent}
+.poster-layout{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.poster-controls{background:var(--wh);border:1px solid var(--bd);border-radius:10px;padding:18px}
+.poster-preview-area{background:var(--wh);border:1px solid var(--bd);border-radius:10px;padding:18px}
+.poster-canvas-wrap{display:flex;justify-content:center;align-items:flex-start;min-height:300px}
+#posterCanvas{border-radius:10px;max-width:100%;box-shadow:0 4px 20px rgba(0,0,0,.15)}
+.color-row{display:flex;gap:8px;flex-wrap:wrap;margin-top:6px}
+.color-opt{width:28px;height:28px;border-radius:6px;cursor:pointer;border:2px solid transparent;transition:.15s}
+.color-opt:hover,.color-opt.selected{border-color:var(--neg)}
+.ai-status{background:var(--mol);border:1px solid #C5B6E8;border-radius:8px;padding:10px 14px;font-size:12px;color:var(--mo);margin-top:10px;display:none}
+.ai-status.show{display:block}
+.toast{position:fixed;bottom:20px;right:20px;background:var(--neg);color:#fff;padding:12px 18px;border-radius:8px;font-size:13px;z-index:300;opacity:0;transition:opacity .3s;display:flex;align-items:center;gap:8px}
+.toast.show{opacity:1}
+.loading-overlay{position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:400;display:none;align-items:center;justify-content:center}
+.loading-overlay.show{display:flex}
+.loading-box{background:#fff;border-radius:12px;padding:30px 40px;text-align:center}
+.spinner{width:36px;height:36px;border:3px solid var(--gl);border-top-color:var(--am);border-radius:50%;animation:spin .8s linear infinite;margin:0 auto 12px}
+@keyframes spin{to{transform:rotate(360deg)}}
+.sync-banner{background:var(--vdl);border:1px solid #A8D5B5;border-radius:8px;padding:10px 14px;font-size:12px;color:var(--vd);margin-bottom:16px;display:none}
+.sync-banner.show{display:flex;align-items:center;gap:8px}
+.sync-banner.error{background:var(--rjl);border-color:#F5B8B2;color:var(--rj)}
+</style>
+</head>
+<body>
+
+<nav class="sidebar">
+  <div class="sb-brand">
+    <div class="sb-logo">BASTIDAS</div>
+    <div class="sb-name">Bastidas S.A.C.</div>
+    <div class="sb-sub">Social CRM · En vivo</div>
+  </div>
+  <div class="sb-sec">Principal</div>
+  <div class="nav-item active" onclick="showPage('dashboard',this)">📊 <span>Dashboard</span></div>
+  <div class="nav-item" onclick="showPage('clientes',this)">👥 <span>Clientes</span></div>
+  <div class="nav-item" onclick="showPage('ltv',this)">📈 <span>LTV</span></div>
+  <div class="sb-sec">Campañas</div>
+  <div class="nav-item" onclick="showPage('campanas',this)">🚀 <span>Campañas</span></div>
+  <div class="nav-item" onclick="showPage('editor',this)">✏️ <span>Editor mensajes</span></div>
+  <div class="nav-item" onclick="showPage('afiches',this)">🎨 <span>Crear afiches</span></div>
+  <div class="sb-sec">Análisis</div>
+  <div class="nav-item" onclick="showPage('arquitectura',this)">🗂️ <span>Arquitectura</span></div>
+  <div class="nav-item" onclick="showPage('indicadores',this)">📉 <span>Indicadores</span></div>
+  <div class="sb-sync">
+    <div style="display:flex;align-items:center;margin-bottom:4px">
+      <span class="sync-dot sync-load" id="syncDot"></span>
+      <span class="sync-txt" id="syncTxt">Conectando Sheets...</span>
+    </div>
+    <div class="sync-txt" id="syncTime"></div>
+  </div>
+</nav>
+
+<div class="main">
+  <div class="topbar">
+    <div class="topbar-title" id="page-title">Dashboard</div>
+    <div class="topbar-right">
+      <button class="btn-reload" onclick="reloadData()">🔄 Actualizar datos</button>
+      <div class="topbar-badge" id="topbar-count">Cargando...</div>
+    </div>
+  </div>
+  <div class="content">
+
+    <div id="sync-banner" class="sync-banner">
+      <span id="sync-banner-msg"></span>
+    </div>
+
+    <!-- DASHBOARD -->
+    <div id="page-dashboard" class="page active">
+      <div class="kpi-grid">
+        <div class="kpi accent"><div class="kpi-label">Total clientes</div><div class="kpi-val" id="k-total">—</div><div class="kpi-sub">Base registrada</div></div>
+        <div class="kpi"><div class="kpi-label">Clientes Oro ⭐</div><div class="kpi-val" id="k-oro">—</div><div class="kpi-sub">Alta frecuencia</div></div>
+        <div class="kpi"><div class="kpi-label">Clientes Regular</div><div class="kpi-val" id="k-reg">—</div><div class="kpi-sub">Media frecuencia</div></div>
+        <div class="kpi"><div class="kpi-label">Inactivos 🔴</div><div class="kpi-val" id="k-ina">—</div><div class="kpi-sub">+90 días sin compra</div></div>
+        <div class="kpi"><div class="kpi-label">Ticket prom. Oro</div><div class="kpi-val" id="k-tick">—</div><div class="kpi-sub">Soles</div></div>
+        <div class="kpi"><div class="kpi-label">Sector líder</div><div class="kpi-val" id="k-sector" style="font-size:14px">—</div><div class="kpi-sub">Por nro. clientes</div></div>
+      </div>
+      <div class="charts-grid">
+        <div class="chart-card"><div class="chart-title">Distribución por segmento</div><div style="position:relative;height:180px"><canvas id="chartSeg"></canvas></div><div id="leg-seg" style="display:flex;gap:12px;flex-wrap:wrap;margin-top:8px;font-size:12px;color:var(--gris)"></div></div>
+        <div class="chart-card"><div class="chart-title">Clientes por sector</div><div style="position:relative;height:200px"><canvas id="chartSector"></canvas></div></div>
+        <div class="chart-card"><div class="chart-title">Marcas más frecuentes</div><div style="position:relative;height:180px"><canvas id="chartMarca"></canvas></div></div>
+        <div class="chart-card"><div class="chart-title">Ticket promedio por segmento (S/.)</div><div style="position:relative;height:180px"><canvas id="chartTicket"></canvas></div></div>
+      </div>
+    </div>
+
+    <!-- CLIENTES -->
+    <div id="page-clientes" class="page">
+      <div class="table-card">
+        <div class="table-header">
+          <div class="table-header-title">Base de datos de clientes</div>
+          <div class="search-row">
+            <input type="text" id="searchInput" placeholder="Buscar cliente o ID..." oninput="filterTable()" style="width:180px">
+            <select id="filterSeg" onchange="filterTable()"><option value="">Todos los segmentos</option><option>Oro</option><option>Regular</option><option>Inactivo</option></select>
+            <select id="filterSector" onchange="filterTable()"><option value="">Todos los sectores</option></select>
+            <select id="filterMarca" onchange="filterTable()"><option value="">Todas las marcas</option></select>
+          </div>
+        </div>
+        <div style="overflow-x:auto">
+          <table>
+            <thead><tr><th>ID</th><th>Razón Social</th><th>Representante</th><th>WhatsApp</th><th>Sector</th><th>Marca</th><th>Días últ. compra</th><th>Frecuencia</th><th>Ticket (S/.)</th><th>Segmento</th><th>Acción</th></tr></thead>
+            <tbody id="clientTable"></tbody>
+          </table>
+        </div>
+        <div class="table-count" id="tableCount"></div>
+      </div>
+    </div>
+
+    <!-- LTV -->
+    <div id="page-ltv" class="page">
+      <div class="ltv-formula-box">📐 LTV = Ticket promedio × Frecuencia anual × Años estimados × Margen (30%)</div>
+      <div class="ltv-grid" id="ltvCards"></div>
+      <div class="section-title">Top 10 clientes por LTV estimado</div>
+      <div class="table-card"><div style="overflow-x:auto"><table><thead><tr><th>ID</th><th>Razón Social</th><th>Ticket (S/.)</th><th>Frec./año</th><th>LTV estimado</th><th>Segmento</th><th>WhatsApp</th></tr></thead><tbody id="ltvTable"></tbody></table></div></div>
+    </div>
+
+    <!-- CAMPAÑAS -->
+    <div id="page-campanas" class="page">
+      <div class="section-title">3 Campañas relacionales</div>
+      <div class="section-subtitle">Haz clic en "Ver clientes" para ver la lista y enviar mensajes por WhatsApp con un clic</div>
+      <div class="camp-grid">
+        <div class="camp-card camp-cap">
+          <div class="camp-icon">🚀</div>
+          <div class="camp-title">Captación</div>
+          <div class="camp-desc">Nuevos clientes vía referidos y anuncios en Facebook/Instagram. Objetivo: aumentar base activa.</div>
+          <div style="font-size:12px;color:var(--gris);margin-bottom:8px">Canal: Meta Ads + WhatsApp referidos</div>
+          <button class="btn btn-primary btn-sm" onclick="showCampTab('cap')">Ver clientes →</button>
+        </div>
+        <div class="camp-card camp-fid">
+          <div class="camp-icon">💎</div>
+          <div class="camp-title">Fidelización</div>
+          <div class="camp-desc">Clientes Oro y Regular: descuentos, puntos y atención personalizada para aumentar la recompra.</div>
+          <div style="font-size:12px;color:var(--gris);margin-bottom:8px">Canal: WhatsApp Business directo</div>
+          <button class="btn btn-primary btn-sm" onclick="showCampTab('fid')">Ver clientes →</button>
+        </div>
+        <div class="camp-card camp-rec">
+          <div class="camp-icon">🔔</div>
+          <div class="camp-title">Recuperación</div>
+          <div class="camp-desc">Clientes inactivos +90 días. Campaña de reactivación con oferta especial de retorno.</div>
+          <div style="font-size:12px;color:var(--gris);margin-bottom:8px">Canal: WhatsApp + llamada directa</div>
+          <button class="btn btn-primary btn-sm" onclick="showCampTab('rec')">Ver clientes →</button>
+        </div>
+      </div>
+      <div class="table-card">
+        <div class="table-header">
+          <div class="table-header-title" id="camp-tab-title">← Selecciona una campaña</div>
+          <div id="camp-tab-count" style="font-size:12px;color:var(--gris)"></div>
+        </div>
+        <div style="overflow-x:auto">
+          <table><thead><tr><th>ID</th><th>Razón Social</th><th>Segmento</th><th>Días sin compra</th><th>Ticket</th><th>Enviar WhatsApp</th></tr></thead>
+          <tbody id="campTable"></tbody></table>
+        </div>
+        <div id="campEmpty" style="padding:24px;text-align:center;color:var(--gris);font-size:13px">← Elige una campaña arriba para ver los clientes objetivo</div>
+      </div>
+    </div>
+
+    <!-- EDITOR MENSAJES -->
+    <div id="page-editor" class="page">
+      <div class="section-title">Editor de mensajes de campaña</div>
+      <div class="section-subtitle">Personaliza cada mensaje. Usa {nombre} para insertar el nombre del cliente automáticamente.</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+        <div>
+          <div class="editor-card">
+            <div style="display:flex;align-items:center;gap:8px;margin-bottom:14px"><span style="font-size:18px">🚀</span><div style="font-size:14px;font-weight:700;color:var(--vd)">Campaña Captación</div></div>
+            <div class="form-group"><label class="form-label">Mensaje WhatsApp</label><textarea class="form-control" id="cap-msg" oninput="previewMsg('cap')" rows="5">¡Hola! 👋 Soy de *Bastidas S.A.C.*, especialistas en repuestos de línea amarilla Caterpillar, Komatsu y más.
+
+Tenemos una oferta especial de bienvenida para nuevos clientes 🎁 ¿Le gustaría conocer nuestro catálogo?
+
+📞 Escríbenos para atenderle personalmente.</textarea></div>
+            <div style="display:flex;gap:8px">
+              <button class="btn btn-primary btn-sm" onclick="saveMsg('cap')">💾 Guardar</button>
+              <button class="btn btn-ai btn-sm" onclick="generateMsg('cap')">✨ Mejorar con IA</button>
+            </div>
+          </div>
+          <div class="editor-card">
+            <div style="display:flex;align-items:center;gap:8px;margin-bottom:14px"><span style="font-size:18px">💎</span><div style="font-size:14px;font-weight:700;color:var(--mo)">Campaña Fidelización</div></div>
+            <div class="form-group"><label class="form-label">Mensaje WhatsApp</label><textarea class="form-control" id="fid-msg" oninput="previewMsg('fid')" rows="5">¡Hola! 🌟 Gracias por confiar en *Bastidas S.A.C.*
+
+Como cliente especial nuestro, tiene un *descuento exclusivo del 10%* en su próximo pedido de repuestos Caterpillar y línea amarilla 🔧
+
+¿Le puedo enviar el catálogo actualizado? ¡Válido solo esta semana! 🎯</textarea></div>
+            <div style="display:flex;gap:8px">
+              <button class="btn btn-primary btn-sm" onclick="saveMsg('fid')">💾 Guardar</button>
+              <button class="btn btn-ai btn-sm" onclick="generateMsg('fid')">✨ Mejorar con IA</button>
+            </div>
+          </div>
+          <div class="editor-card">
+            <div style="display:flex;align-items:center;gap:8px;margin-bottom:14px"><span style="font-size:18px">🔔</span><div style="font-size:14px;font-weight:700;color:var(--rj)">Campaña Recuperación</div></div>
+            <div class="form-group"><label class="form-label">Mensaje WhatsApp</label><textarea class="form-control" id="rec-msg" oninput="previewMsg('rec')" rows="5">¡Hola! 🙋 Le escribe el equipo de *Bastidas S.A.C.*
+
+Notamos que hace tiempo no le atendemos y quisiéramos saber si podemos ayudarle 🔧
+
+Tenemos stock actualizado de repuestos Caterpillar, Komatsu, Scania y más. ¡Además tiene *precio preferencial* en su próximo pedido! 💰
+
+¿Cuándo podemos coordinar? 📞</textarea></div>
+            <div style="display:flex;gap:8px">
+              <button class="btn btn-primary btn-sm" onclick="saveMsg('rec')">💾 Guardar</button>
+              <button class="btn btn-ai btn-sm" onclick="generateMsg('rec')">✨ Mejorar con IA</button>
+            </div>
+          </div>
+        </div>
+        <div>
+          <div class="section-title">Vista previa WhatsApp</div>
+          <div style="display:flex;gap:6px;margin-bottom:12px;flex-wrap:wrap">
+            <button class="btn btn-outline btn-sm" onclick="previewMsg('cap')">🚀 Captación</button>
+            <button class="btn btn-outline btn-sm" onclick="previewMsg('fid')">💎 Fidelización</button>
+            <button class="btn btn-outline btn-sm" onclick="previewMsg('rec')">🔔 Recuperación</button>
+          </div>
+          <div class="wpp-preview">
+            <div style="text-align:center;font-size:11px;color:#888;margin-bottom:10px">Vista previa WhatsApp</div>
+            <div class="wpp-bubble" id="wpp-preview-text">Selecciona una campaña para ver la vista previa...</div>
+            <div class="wpp-time">Bastidas S.A.C. · Ahora</div>
+          </div>
+          <div id="ai-status" class="ai-status"></div>
+          <div style="margin-top:16px;background:var(--aml);border:1px solid var(--am);border-radius:8px;padding:12px;font-size:12px;color:var(--amd)">
+            💡 <strong>Tip:</strong> Usa <code>{nombre}</code> en el mensaje y se reemplaza con el nombre del cliente al enviar. El botón <strong>✨ Mejorar con IA</strong> reescribe el mensaje automáticamente.
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- AFICHES -->
+    <div id="page-afiches" class="page">
+      <div class="section-title">🎨 Generador de afiches publicitarios</div>
+      <div class="section-subtitle">Crea afiches para WhatsApp y Facebook/Instagram con IA. Descarga la imagen y compártela.</div>
+      <div class="poster-tabs">
+        <div class="poster-tab active" onclick="setPosterType('wpp',this)">📱 WhatsApp (1:1)</div>
+        <div class="poster-tab" onclick="setPosterType('fb',this)">📘 Facebook/Instagram (4:5)</div>
+      </div>
+      <div class="poster-layout">
+        <div class="poster-controls">
+          <div class="form-group">
+            <label class="form-label">Tipo de campaña</label>
+            <select class="form-control" id="poster-camp" onchange="updatePosterPreview()">
+              <option value="cap">🚀 Captación — Nuevos clientes</option>
+              <option value="fid">💎 Fidelización — Descuento especial</option>
+              <option value="rec">🔔 Recuperación — Oferta retorno</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Título del afiche</label>
+            <input class="form-control" id="poster-titulo" value="¡Repuestos de línea amarilla!" oninput="updatePosterPreview()">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Mensaje principal</label>
+            <textarea class="form-control" id="poster-msg" rows="3" oninput="updatePosterPreview()">Caterpillar · Komatsu · Scania
+Stock disponible · Envío inmediato</textarea>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Oferta o llamada a la acción</label>
+            <input class="form-control" id="poster-oferta" value="¡10% de descuento esta semana!" oninput="updatePosterPreview()">
+          </div>
+          <div class="form-group">
+            <label class="form-label">WhatsApp de contacto</label>
+            <input class="form-control" id="poster-wpp" value="+51 9XX XXX XXX" oninput="updatePosterPreview()">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Color del afiche</label>
+            <div class="color-row" id="colorRow"></div>
+          </div>
+          <div style="display:flex;gap:8px;margin-top:6px;flex-wrap:wrap">
+            <button class="btn btn-ai" onclick="generatePosterWithAI()">✨ Generar con IA</button>
+            <button class="btn btn-primary" onclick="updatePosterPreview()">🔄 Actualizar</button>
+            <button class="btn btn-outline" onclick="downloadPoster()">⬇️ Descargar imagen</button>
+          </div>
+        </div>
+        <div class="poster-preview-area">
+          <div class="section-title" style="margin-bottom:12px">Vista previa</div>
+          <div class="poster-canvas-wrap">
+            <canvas id="posterCanvas" width="400" height="400"></canvas>
+          </div>
+          <div id="poster-ai-status" class="ai-status" style="margin-top:12px"></div>
+          <div style="margin-top:12px;font-size:11px;color:var(--gris);text-align:center">Haz clic en "Descargar imagen" para guardar el afiche</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ARQUITECTURA -->
+    <div id="page-arquitectura" class="page">
+      <div class="section-title">Arquitectura Social CRM — 4 capas</div>
+      <div class="arch-grid">
+        <div class="arch-card arch-c1"><div class="arch-head">📥 Capa 1 · Captura</div><div class="arch-item">WhatsApp Business</div><div class="arch-item">Google Forms + QR</div><div class="arch-item">Meta Business Suite</div><div class="arch-item">Google Maps / reseñas</div><div class="arch-item">Formulario físico tienda</div></div>
+        <div class="arch-card arch-c2"><div class="arch-head">🗄️ Capa 2 · Almacenamiento</div><div class="arch-item">Google Sheets — en vivo</div><div class="arch-item">Segmentación automática</div><div class="arch-item">Cálculo LTV integrado</div><div class="arch-item">HubSpot / Brevo CRM</div><div class="arch-item">Este CRM vinculado</div></div>
+        <div class="arch-card arch-c3"><div class="arch-head">⚡ Capa 3 · Acción</div><div class="arch-item">Campaña captación (Meta Ads)</div><div class="arch-item">Campaña fidelización</div><div class="arch-item">Campaña recuperación</div><div class="arch-item">IA — mensajes y afiches</div><div class="arch-item">Calendario de campañas</div></div>
+        <div class="arch-card arch-c4"><div class="arch-head">📊 Capa 4 · Medición</div><div class="arch-item">Dashboard en tiempo real</div><div class="arch-item">KPIs: LTV, recompra, NPS</div><div class="arch-item">Encuesta NPS</div><div class="arch-item">Looker Studio</div><div class="arch-item">Reporte campañas</div></div>
+      </div>
+      <div class="section-title">Mapa de interacciones — 8 pasos del cliente</div>
+      <div class="flow-wrap">
+        <div class="flow-step"><strong>1. Conoce</strong><span>RRSS / boca a boca</span></div><div class="flow-arrow">→</div>
+        <div class="flow-step"><strong>2. Consulta</strong><span>WhatsApp / tienda</span></div><div class="flow-arrow">→</div>
+        <div class="flow-step"><strong>3. Cotiza</strong><span>Canal digital/físico</span></div><div class="flow-arrow">→</div>
+        <div class="flow-step"><strong>4. Compra</strong><span>Pago y entrega</span></div><div class="flow-arrow">→</div>
+        <div class="flow-step"><strong>5. Reclama</strong><span>Atención y solución</span></div><div class="flow-arrow">→</div>
+        <div class="flow-step"><strong>6. Postventa</strong><span>Seguimiento NPS</span></div><div class="flow-arrow">→</div>
+        <div class="flow-step"><strong>7. Recompra</strong><span>Campaña fideliz.</span></div><div class="flow-arrow">→</div>
+        <div class="flow-step"><strong>8. Recomienda</strong><span>Referido activo</span></div>
+      </div>
+      <div class="section-title">Tipos de consumidores</div>
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px">
+        <div style="background:var(--azl);border:1px solid #B0D4EE;border-radius:10px;padding:14px;text-align:center"><div style="font-size:20px;margin-bottom:4px">⭐</div><div style="font-weight:700;color:var(--az);font-size:13px">Frecuente</div><div style="font-size:11px;color:var(--gris);margin-top:4px">Alta recurrencia anual. Clientes Oro con ticket alto.</div></div>
+        <div style="background:#FFF3DC;border:1px solid #FAD080;border-radius:10px;padding:14px;text-align:center"><div style="font-size:20px;margin-bottom:4px">💰</div><div style="font-weight:700;color:#7A5000;font-size:13px">Por precio</div><div style="font-size:11px;color:var(--gris);margin-top:4px">Sensible al costo. Compara precios antes de decidir.</div></div>
+        <div style="background:var(--vdl);border:1px solid #A8D5B5;border-radius:10px;padding:14px;text-align:center"><div style="font-size:20px;margin-bottom:4px">📱</div><div style="font-weight:700;color:var(--vd);font-size:13px">Digital</div><div style="font-size:11px;color:var(--gris);margin-top:4px">Prefiere WhatsApp y formularios online.</div></div>
+        <div style="background:var(--mol);border:1px solid #C5B6E8;border-radius:10px;padding:14px;text-align:center"><div style="font-size:20px;margin-bottom:4px">🤝</div><div style="font-weight:700;color:var(--mo);font-size:13px">Recomendador</div><div style="font-size:11px;color:var(--gris);margin-top:4px">Genera referidos. Clientes Oro satisfechos.</div></div>
+      </div>
+    </div>
+
+    <!-- INDICADORES -->
+    <div id="page-indicadores" class="page">
+      <div class="section-title">Indicadores de control — Bloque 9</div>
+      <div class="ind-grid" id="indicadoresGrid"></div>
+      <div style="margin-top:20px">
+        <div class="section-title">LTV por segmento</div>
+        <div class="ltv-grid" id="ltvCards2"></div>
+      </div>
+      <div style="margin-top:4px">
+        <div class="section-title">Descripción empresa — Bloques 1 y 2</div>
+        <div class="editor-card">
+          <div class="form-row">
+            <div>
+              <div class="form-group"><label class="form-label">Nombre</label><input class="form-control" value="Bastidas S.A.C." readonly></div>
+              <div class="form-group"><label class="form-label">Rubro</label><input class="form-control" value="Repuestos línea amarilla — Caterpillar, Komatsu, Scania, Volvo" readonly></div>
+              <div class="form-group"><label class="form-label">Ubicación</label><input class="form-control" value="Huancayo, Junín, Perú" readonly></div>
+            </div>
+            <div>
+              <div class="form-group"><label class="form-label">Tipo de cliente</label><input class="form-control" value="B2B — Empresas mineras, construcción, infraestructura" readonly></div>
+              <div class="form-group"><label class="form-label">Canales de venta</label><input class="form-control" value="Tienda física, WhatsApp, Google Maps, referidos" readonly></div>
+              <div class="form-group"><label class="form-label">Problema relacional</label><input class="form-control" value="Alta tasa de clientes inactivos (+90 días sin recompra)" readonly></div>
+            </div>
+          </div>
+          <div style="margin-top:8px;padding:10px;background:var(--aml);border-radius:6px;font-size:12px;color:var(--amd)">
+            📋 <strong>Diagnóstico CRM:</strong> Base de datos vinculada a Google Sheets en tiempo real. Segmentación automática Oro/Regular/Inactivo. Campañas activas con envío directo por WhatsApp.
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- LOADING -->
+<div class="loading-overlay" id="loadingOverlay">
+  <div class="loading-box">
+    <div class="spinner"></div>
+    <div id="loadingMsg" style="font-size:14px;color:#333;font-weight:500">Cargando datos...</div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast">✅ <span id="toast-msg"></span></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<script>
+// ====== CONFIG ======
+const SHEETS_CSV = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRy5Q2w0iK0ssjYCrXN2NDPvFVAsDOpQMJO2IlAWiE9AEPqXa3AcZZqP-sRZQfCGQ/pub?output=csv';
+const ANTHROPIC_KEY = ''; // Se usa el proxy del navegador
+
+// ====== STATE ======
+let clientes = [];
+let charts = {};
+let msgs = { cap: null, fid: null, rec: null };
+let posterType = 'wpp';
+const posterColors = [
+  {name:'Amarillo',bg:'#F5A623',text:'#1A1A1A',accent:'#C47A00'},
+  {name:'Negro',bg:'#1A1A1A',text:'#F5A623',accent:'#F5A623'},
+  {name:'Azul',bg:'#1A4FAD',text:'#FFFFFF',accent:'#FFD700'},
+  {name:'Verde',bg:'#1E6B3C',text:'#FFFFFF',accent:'#7CFC00'},
+  {name:'Rojo',bg:'#C0392B',text:'#FFFFFF',accent:'#FFD700'},
+  {name:'Morado',bg:'#5A3EA1',text:'#FFFFFF',accent:'#F5A623'},
+];
+let selectedColor = 0;
+
+// ====== INIT ======
+window.onload = () => {
+  initColorPicker();
+  loadFromSheets();
+};
+
+// ====== GOOGLE SHEETS SYNC ======
+async function loadFromSheets() {
+  setSync('load','Cargando datos desde Google Sheets...');
+  showLoading('Sincronizando con Google Sheets...');
+  try {
+    const res = await fetch(SHEETS_CSV + '&t=' + Date.now());
+    if (!res.ok) throw new Error('No se pudo conectar');
+    const text = await res.text();
+    const parsed = parseCSV(text);
+    if (parsed.length === 0) throw new Error('Sin datos');
+    clientes = parsed;
+    setSync('ok', '✅ Sincronizado · ' + clientes.length + ' clientes');
+    document.getElementById('syncTime').textContent = 'Última sync: ' + new Date().toLocaleTimeString();
+    showBanner('✅ Datos actualizados desde Google Sheets — ' + clientes.length + ' clientes cargados', false);
+    buildAll();
+  } catch(e) {
+    setSync('err','❌ Error al conectar con Sheets');
+    showBanner('⚠️ No se pudo conectar con Google Sheets. Usando datos guardados.', true);
+    useFallbackData();
+    buildAll();
+  }
+  hideLoading();
+}
+
+function parseCSV(text) {
+  const lines = text.trim().split('\n');
+  if (lines.length < 2) return [];
+
+  // Find the header row: look for the row containing "ID" and "Razón" or "RAZON"
+  let headerIdx = -1;
+  for (let i = 0; i < Math.min(lines.length, 10); i++) {
+    const l = lines[i].toLowerCase();
+    if ((l.includes('id') && l.includes('social')) || l.includes('id cliente')) {
+      headerIdx = i;
+      break;
+    }
+  }
+  // If not found, find first row where col[0] matches C001 pattern
+  if (headerIdx === -1) {
+    for (let i = 0; i < Math.min(lines.length, 10); i++) {
+      const cols = parseCSVLine(lines[i]);
+      if (cols[0] && cols[0].trim().match(/^C0*1$/)) { headerIdx = i - 1; break; }
+      if (cols[0] && cols[0].trim().match(/C\d{3}/)) { headerIdx = i - 1; break; }
+    }
+  }
+  if (headerIdx < 0) headerIdx = 0;
+
+  // Build header map
+  const headers = parseCSVLine(lines[headerIdx]).map(h => h.toLowerCase().trim());
+  const col = (row, names) => {
+    for (const n of names) {
+      const idx = headers.findIndex(h => h.includes(n));
+      if (idx >= 0 && row[idx] !== undefined) return row[idx].trim();
+    }
+    return '';
+  };
+
+  const result = [];
+  for (let i = headerIdx + 1; i < lines.length; i++) {
+    const cols = parseCSVLine(lines[i]);
+    const id = col(cols, ['id cliente','id']);
+    if (!id || !id.match(/C\d{2,}/i)) continue;
+
+    const ticketRaw = col(cols, ['ticket','s/.','monto']);
+    const ticket = parseFloat(ticketRaw.replace(/[^0-9.]/g, '')) || 0;
+    const freq = parseInt(col(cols, ['frecuencia','freq'])) || 1;
+    const dias = parseInt(col(cols, ['días','dias','ultima','compra'])) || 999;
+    let seg = col(cols, ['segmento','seg']);
+    if (!['Oro','Regular','Inactivo'].includes(seg)) {
+      if (dias <= 45 && freq >= 3) seg = 'Oro';
+      else if (dias <= 90) seg = 'Regular';
+      else seg = 'Inactivo';
+    }
+
+    result.push({
+      id: id,
+      razon: col(cols, ['razón','razon','social','empresa']),
+      rep: col(cols, ['representante','rep','nombre']),
+      wa: col(cols, ['whatsapp','wpp','celular','telefono','teléfono']).replace(/\D/g,''),
+      sector: col(cols, ['sector','rubro','industria']),
+      marca: col(cols, ['marca','equipo']),
+      dias: dias,
+      freq: freq,
+      ticket: ticket,
+      seg: seg
+    });
+  }
+  return result;
+}
+
+function parseCSVLine(line) {
+  const result = [];
+  let current = '';
+  let inQuotes = false;
+  for (let i = 0; i < line.length; i++) {
+    if (line[i] === '"') { inQuotes = !inQuotes; continue; }
+    if (line[i] === ',' && !inQuotes) { result.push(current); current = ''; continue; }
+    current += line[i];
+  }
+  result.push(current);
+  return result;
+}
+
+function reloadData() {
+  loadFromSheets();
+}
+
+// ====== FALLBACK DATA ======
+function useFallbackData() {
+  clientes = [
+    {id:'C001',razon:'Minera Las Bambas S.A.C.',rep:'Ing. Representante 1',wa:'989000459',sector:'Construcción',marca:'Komatsu',dias:22,freq:5,ticket:46753,seg:'Oro'},
+    {id:'C002',razon:'Cosapi S.A.',rep:'Ing. Representante 2',wa:'981349146',sector:'Infraestructura',marca:'Volvo Heavy',dias:13,freq:5,ticket:51499,seg:'Oro'},
+    {id:'C003',razon:'Ferreyros S.A.',rep:'Ing. Representante 3',wa:'964396392',sector:'Energía',marca:'John Deere',dias:24,freq:4,ticket:50907,seg:'Oro'},
+    {id:'C004',razon:'Volcan Compañía Minera',rep:'Ing. Representante 4',wa:'996467703',sector:'Transporte Pesado',marca:'Scania',dias:23,freq:4,ticket:49351,seg:'Oro'},
+    {id:'C005',razon:'Graña y Montero S.A.A.',rep:'Ing. Representante 5',wa:'954721476',sector:'Minería',marca:'Caterpillar',dias:26,freq:3,ticket:40277,seg:'Oro'},
+    {id:'C006',razon:'Sacyr Perú',rep:'Ing. Representante 6',wa:'955963533',sector:'Construcción',marca:'Komatsu',dias:38,freq:5,ticket:47009,seg:'Oro'},
+    {id:'C007',razon:'San Martín Contratistas',rep:'Ing. Representante 7',wa:'962858819',sector:'Infraestructura',marca:'Volvo Heavy',dias:40,freq:4,ticket:42825,seg:'Oro'},
+    {id:'C008',razon:'Aceros Arequipa',rep:'Ing. Representante 8',wa:'992776996',sector:'Energía',marca:'John Deere',dias:35,freq:4,ticket:41824,seg:'Oro'},
+    {id:'C009',razon:'Mota-Engil Perú',rep:'Ing. Representante 9',wa:'954221077',sector:'Transporte Pesado',marca:'Scania',dias:37,freq:4,ticket:44970,seg:'Oro'},
+    {id:'C010',razon:'Cemex Perú S.A.C.',rep:'Ing. Representante 10',wa:'964210151',sector:'Minería',marca:'Caterpillar',dias:17,freq:5,ticket:55477,seg:'Oro'},
+    {id:'C016',razon:'Hochschild Mining',rep:'Ing. Representante 16',wa:'974890975',sector:'Construcción',marca:'Komatsu',dias:61,freq:1,ticket:16293,seg:'Regular'},
+    {id:'C017',razon:'Cosapi S.A. Sede 2',rep:'Ing. Representante 17',wa:'987876944',sector:'Infraestructura',marca:'Volvo Heavy',dias:34,freq:1,ticket:19074,seg:'Regular'},
+    {id:'C018',razon:'Ferreyros S.A. Sede 2',rep:'Ing. Representante 18',wa:'962136097',sector:'Energía',marca:'John Deere',dias:50,freq:1,ticket:24510,seg:'Regular'},
+    {id:'C036',razon:'Graña y Montero Sede 3',rep:'Ing. Representante 36',wa:'968337252',sector:'Construcción',marca:'Komatsu',dias:155,freq:1,ticket:12524,seg:'Inactivo'},
+    {id:'C037',razon:'Sacyr Perú Sede 3',rep:'Ing. Representante 37',wa:'989803729',sector:'Infraestructura',marca:'Volvo Heavy',dias:163,freq:2,ticket:10739,seg:'Inactivo'},
+    {id:'C060',razon:'WIRACOCHA',rep:'Ing. Representante 60',wa:'989003482',sector:'Minería',marca:'Caterpillar',dias:125,freq:2,ticket:9775,seg:'Inactivo'},
+    {id:'C062',razon:'WIRACOCHA',rep:'Ing. Representante 62',wa:'981551133',sector:'Minería',marca:'Caterpillar',dias:79,freq:4,ticket:8981,seg:'Oro'},
+    {id:'C063',razon:'WIRACOCHA',rep:'Ing. Representante 63',wa:'906927071',sector:'Minería',marca:'Scania',dias:56,freq:5,ticket:8584,seg:'Oro'},
+  ];
+}
+
+// ====== BUILD ALL ======
+function buildAll() {
+  document.getElementById('topbar-count').textContent = clientes.length + ' clientes · En vivo';
+  buildKPIs();
+  buildCharts();
+  buildClientTable();
+  buildLTV();
+  buildIndicadores();
+  updatePosterPreview();
+}
+
+// ====== KPIs ======
+function buildKPIs() {
+  const oro = clientes.filter(d => d.seg==='Oro');
+  const reg = clientes.filter(d => d.seg==='Regular');
+  const ina = clientes.filter(d => d.seg==='Inactivo');
+  const sectorCount = {};
+  clientes.forEach(d => { sectorCount[d.sector] = (sectorCount[d.sector]||0)+1; });
+  const topSector = Object.entries(sectorCount).sort((a,b)=>b[1]-a[1])[0]?.[0] || '—';
+  document.getElementById('k-total').textContent = clientes.length;
+  document.getElementById('k-oro').textContent = oro.length;
+  document.getElementById('k-reg').textContent = reg.length;
+  document.getElementById('k-ina').textContent = ina.length;
+  document.getElementById('k-tick').textContent = oro.length ? 'S/. '+avg(oro).toLocaleString() : '—';
+  document.getElementById('k-sector').textContent = topSector;
+}
+
+function avg(arr) { return arr.length ? Math.round(arr.reduce((a,b)=>a+b.ticket,0)/arr.length) : 0; }
+
+// ====== CHARTS ======
+function buildCharts() {
+  const oro = clientes.filter(d=>d.seg==='Oro');
+  const reg = clientes.filter(d=>d.seg==='Regular');
+  const ina = clientes.filter(d=>d.seg==='Inactivo');
+  const sectorCount={}, marcaCount={};
+  clientes.forEach(d=>{
+    sectorCount[d.sector]=(sectorCount[d.sector]||0)+1;
+    marcaCount[d.marca]=(marcaCount[d.marca]||0)+1;
+  });
+  Object.keys(charts).forEach(k => { try{charts[k].destroy()}catch(e){} });
+  charts = {};
+  charts.seg = new Chart(document.getElementById('chartSeg'),{type:'doughnut',data:{labels:['Oro','Regular','Inactivo'],datasets:[{data:[oro.length,reg.length,ina.length],backgroundColor:['#5A3EA1','#C47A00','#C0392B'],borderWidth:2,borderColor:'#fff'}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}}}});
+  document.getElementById('leg-seg').innerHTML=`<span style="display:flex;align-items:center;gap:4px"><span style="width:10px;height:10px;border-radius:2px;background:#5A3EA1;display:inline-block"></span>Oro (${oro.length})</span><span style="display:flex;align-items:center;gap:4px"><span style="width:10px;height:10px;border-radius:2px;background:#C47A00;display:inline-block"></span>Regular (${reg.length})</span><span style="display:flex;align-items:center;gap:4px"><span style="width:10px;height:10px;border-radius:2px;background:#C0392B;display:inline-block"></span>Inactivo (${ina.length})</span>`;
+  const sk=Object.keys(sectorCount);
+  charts.sector = new Chart(document.getElementById('chartSector'),{type:'bar',data:{labels:sk,datasets:[{data:sk.map(k=>sectorCount[k]),backgroundColor:'#1A6BAD',borderRadius:4,label:'Clientes'}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{beginAtZero:true,ticks:{stepSize:2}},x:{ticks:{font:{size:10}}}}}});
+  const mk=Object.keys(marcaCount);
+  charts.marca = new Chart(document.getElementById('chartMarca'),{type:'bar',data:{labels:mk,datasets:[{data:mk.map(k=>marcaCount[k]),backgroundColor:'#2D7D46',borderRadius:4,label:'Clientes'}]},options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{beginAtZero:true}}}});
+  charts.ticket = new Chart(document.getElementById('chartTicket'),{type:'bar',data:{labels:['Oro','Regular','Inactivo'],datasets:[{data:[avg(oro),avg(reg),avg(ina)],backgroundColor:['#5A3EA1','#C47A00','#C0392B'],borderRadius:4,label:'Ticket'}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{beginAtZero:true,ticks:{callback:v=>'S/.'+Math.round(v/1000)+'k'}}}}});
+}
+
+// ====== TABLE ======
+function buildClientTable() {
+  const selSector = document.getElementById('filterSector');
+  const selMarca = document.getElementById('filterMarca');
+  selSector.innerHTML = '<option value="">Todos los sectores</option>';
+  selMarca.innerHTML = '<option value="">Todas las marcas</option>';
+  [...new Set(clientes.map(d=>d.sector))].forEach(s=>{ const o=document.createElement('option');o.textContent=s;selSector.appendChild(o); });
+  [...new Set(clientes.map(d=>d.marca))].forEach(m=>{ const o=document.createElement('option');o.textContent=m;selMarca.appendChild(o); });
+  filterTable();
+}
+
+function filterTable() {
+  const q = document.getElementById('searchInput').value.toLowerCase();
+  const seg = document.getElementById('filterSeg').value;
+  const sec = document.getElementById('filterSector').value;
+  const mar = document.getElementById('filterMarca').value;
+  const f = clientes.filter(d =>
+    (d.razon.toLowerCase().includes(q)||d.id.toLowerCase().includes(q)||d.rep.toLowerCase().includes(q)) &&
+    (!seg||d.seg===seg) && (!sec||d.sector===sec) && (!mar||d.marca===mar)
+  );
+  document.getElementById('clientTable').innerHTML = f.map(d =>
+    `<tr><td><strong>${d.id}</strong></td><td>${d.razon}</td><td>${d.rep}</td>
+    <td><a href="https://wa.me/51${d.wa}" target="_blank" style="color:#2D7D46;text-decoration:none">📱 ${d.wa}</a></td>
+    <td>${d.sector}</td><td>${d.marca}</td><td>${d.dias} días</td>
+    <td>${d.freq}x/año</td><td>S/. ${d.ticket.toLocaleString()}</td>
+    <td>${badge(d.seg)}</td>
+    <td><button class="btn btn-wpp btn-sm" onclick="sendWpp('${d.wa}','${d.seg==='Inactivo'?'rec':'fid'}','${d.razon.replace(/'/g,'')}')">📲 WPP</button></td></tr>`
+  ).join('');
+  document.getElementById('tableCount').textContent = `Mostrando ${f.length} de ${clientes.length} clientes`;
+}
+
+// ====== LTV ======
+function buildLTV() {
+  const oro=clientes.filter(d=>d.seg==='Oro');
+  const reg=clientes.filter(d=>d.seg==='Regular');
+  const ina=clientes.filter(d=>d.seg==='Inactivo');
+  const ltvData=[
+    {label:'Cliente Oro (Frecuente)',ticket:avg(oro),freq:4,years:3},
+    {label:'Cliente Regular',ticket:avg(reg),freq:2,years:2},
+    {label:'Cliente Inactivo',ticket:avg(ina),freq:1,years:1}
+  ];
+  const html = ltvData.map(l=>{
+    const v=Math.round(l.ticket*l.freq*l.years*0.30);
+    return `<div class="ltv-card"><div class="ltv-type">${l.label}</div><div class="ltv-val">S/. ${v.toLocaleString()}</div><div class="ltv-formula-small">S/.${l.ticket.toLocaleString()} × ${l.freq} × ${l.years} años × 30%</div></div>`;
+  }).join('');
+  document.getElementById('ltvCards').innerHTML = html;
+  document.getElementById('ltvCards2').innerHTML = html;
+  const top10=[...clientes].sort((a,b)=>b.ticket*b.freq-a.ticket*a.freq).slice(0,10);
+  document.getElementById('ltvTable').innerHTML = top10.map(d=>{
+    const v=Math.round(d.ticket*d.freq*3*0.30);
+    return `<tr><td><strong>${d.id}</strong></td><td>${d.razon}</td><td>S/. ${d.ticket.toLocaleString()}</td><td>${d.freq}x</td><td><strong>S/. ${v.toLocaleString()}</strong></td><td>${badge(d.seg)}</td><td><button class="btn btn-wpp btn-sm" onclick="sendWpp('${d.wa}','fid','${d.razon.replace(/'/g,'')}')">📲</button></td></tr>`;
+  }).join('');
+}
+
+// ====== INDICADORES ======
+function buildIndicadores() {
+  const oro=clientes.filter(d=>d.seg==='Oro');
+  const reg=clientes.filter(d=>d.seg==='Regular');
+  const ina=clientes.filter(d=>d.seg==='Inactivo');
+  const avgLTV=Math.round(clientes.reduce((a,d)=>a+d.ticket*d.freq*3*0.30,0)/clientes.length);
+  const indicadores=[
+    {label:'Tasa de recompra (Oro)',val:((oro.length/clientes.length)*100).toFixed(0)+'%'},
+    {label:'Ticket promedio global',val:'S/. '+Math.round(clientes.reduce((a,d)=>a+d.ticket,0)/clientes.length).toLocaleString()},
+    {label:'LTV promedio',val:'S/. '+avgLTV.toLocaleString()},
+    {label:'Clientes activos',val:(oro.length+reg.length)+' de '+clientes.length},
+    {label:'% Oro del total',val:((oro.length/clientes.length)*100).toFixed(0)+'%'},
+    {label:'Inactivos a recuperar',val:ina.length+' clientes'},
+    {label:'Referidos potenciales',val:oro.length+' (clientes Oro)'},
+    {label:'NPS (satisfacción)',val:'Por medir'},
+    {label:'Frec. prom. Oro',val:oro.length?(oro.reduce((a,d)=>a+d.freq,0)/oro.length).toFixed(1)+'x/año':'—'},
+    {label:'Días prom. Oro',val:oro.length?Math.round(oro.reduce((a,d)=>a+d.dias,0)/oro.length)+' días':'—'},
+  ];
+  document.getElementById('indicadoresGrid').innerHTML = indicadores.map(i=>`<div class="ind-card"><div class="ind-label">${i.label}</div><div class="ind-val">${i.val}</div></div>`).join('');
+}
+
+// ====== CAMPAIGNS ======
+function showCampTab(tipo) {
+  let arr, title;
+  if(tipo==='cap'){ arr=clientes.filter(d=>d.seg==='Regular').slice(0,15); title='🚀 Captación — Clientes Regular (potencial de upgrade)'; }
+  else if(tipo==='fid'){ arr=clientes.filter(d=>d.seg==='Oro'); title='💎 Fidelización — Clientes Oro activos'; }
+  else { arr=clientes.filter(d=>d.seg==='Inactivo'); title='🔔 Recuperación — Clientes inactivos +90 días'; }
+  document.getElementById('camp-tab-title').textContent = title;
+  document.getElementById('camp-tab-count').textContent = arr.length + ' clientes objetivo';
+  document.getElementById('campEmpty').style.display='none';
+  document.getElementById('campTable').innerHTML = arr.map(d =>
+    `<tr><td><strong>${d.id}</strong></td><td>${d.razon}</td><td>${badge(d.seg)}</td><td>${d.dias} días</td><td>S/. ${d.ticket.toLocaleString()}</td>
+    <td><button class="btn btn-wpp btn-sm" onclick="sendWpp('${d.wa}','${tipo}','${d.razon.replace(/'/g,'')}')">📲 Enviar mensaje</button></td></tr>`
+  ).join('');
+}
+
+// ====== WHATSAPP ======
+function getMsg(tipo) { return msgs[tipo] || document.getElementById(tipo+'-msg').value; }
+function sendWpp(wa, tipo, nombre) {
+  const m = getMsg(tipo).replace('{nombre}', nombre);
+  window.open('https://wa.me/51'+wa+'?text='+encodeURIComponent(m),'_blank');
+  toast('Abriendo WhatsApp para '+nombre);
+}
+function saveMsg(tipo) { msgs[tipo]=document.getElementById(tipo+'-msg').value; toast('Mensaje guardado'); }
+function previewMsg(tipo) {
+  const m = document.getElementById(tipo+'-msg').value;
+  document.getElementById('wpp-preview-text').textContent = m.replace('{nombre}','Ing. Representante');
+}
+
+// ====== AI MESSAGE GENERATOR ======
+async function generateMsg(tipo) {
+  const campNames = {cap:'captación de nuevos clientes',fid:'fidelización con descuento especial',rec:'recuperación de clientes inactivos'};
+  const status = document.getElementById('ai-status');
+  status.textContent = '✨ Generando mensaje con IA...';
+  status.classList.add('show');
+  try {
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({
+        model:'claude-sonnet-4-6',
+        max_tokens:1000,
+        messages:[{role:'user',content:`Eres experto en marketing para PYMES peruanas. Crea un mensaje de WhatsApp para campaña de ${campNames[tipo]} para Bastidas S.A.C., empresa de repuestos de línea amarilla Caterpillar, Komatsu y Scania en Huancayo, Perú. El mensaje debe: ser persuasivo, usar emojis moderadamente, tener menos de 200 palabras, terminar con llamada a la acción clara. Responde SOLO con el mensaje, sin explicaciones.`}]
+      })
+    });
+    const data = await res.json();
+    const newMsg = data.content?.[0]?.text || '';
+    if(newMsg){ document.getElementById(tipo+'-msg').value = newMsg; previewMsg(tipo); status.textContent='✅ Mensaje generado con IA'; toast('Mensaje mejorado con IA'); }
+    else { status.textContent='⚠️ No se pudo generar. Verifica tu conexión.'; }
+  } catch(e) {
+    status.textContent = '⚠️ Error al conectar con IA. Revisa tu conexión.';
+  }
+  setTimeout(()=>status.classList.remove('show'),4000);
+}
+
+// ====== POSTER GENERATOR ======
+function initColorPicker() {
+  document.getElementById('colorRow').innerHTML = posterColors.map((c,i)=>
+    `<div class="color-opt${i===0?' selected':''}" style="background:${c.bg}" title="${c.name}" onclick="selectColor(${i})"></div>`
+  ).join('');
+}
+function selectColor(i) {
+  selectedColor = i;
+  document.querySelectorAll('.color-opt').forEach((el,idx)=>el.classList.toggle('selected',idx===i));
+  updatePosterPreview();
+}
+function setPosterType(t, el) {
+  posterType = t;
+  document.querySelectorAll('.poster-tab').forEach(x=>x.classList.remove('active'));
+  el.classList.add('active');
+  updatePosterPreview();
+}
+
+function updatePosterPreview() {
+  const canvas = document.getElementById('posterCanvas');
+  const ctx = canvas.getContext('2d');
+  const isWpp = posterType === 'wpp';
+  canvas.width = isWpp ? 400 : 400;
+  canvas.height = isWpp ? 400 : 500;
+  const W = canvas.width, H = canvas.height;
+  const c = posterColors[selectedColor];
+  const titulo = document.getElementById('poster-titulo').value || 'Bastidas S.A.C.';
+  const msg = document.getElementById('poster-msg').value || '';
+  const oferta = document.getElementById('poster-oferta').value || '';
+  const wpp = document.getElementById('poster-wpp').value || '';
+  const campVal = document.getElementById('poster-camp').value;
+  const campLabel = campVal==='cap'?'CAPTACIÓN':campVal==='fid'?'FIDELIZACIÓN':'RECUPERACIÓN';
+
+  // Background
+  ctx.fillStyle = c.bg;
+  ctx.fillRect(0,0,W,H);
+
+  // Decorative shapes
+  ctx.fillStyle = c.accent+'33';
+  ctx.beginPath(); ctx.arc(W+60,H+60,180,0,Math.PI*2); ctx.fill();
+  ctx.beginPath(); ctx.arc(-40,-40,120,0,Math.PI*2); ctx.fill();
+
+  // Top bar
+  ctx.fillStyle = c.accent;
+  ctx.fillRect(0,0,W,6);
+
+  // Campaign badge
+  ctx.fillStyle = c.accent;
+  roundRect(ctx,20,20,130,26,6);
+  ctx.fill();
+  ctx.fillStyle = c.bg;
+  ctx.font='bold 11px Segoe UI,Arial,sans-serif';
+  ctx.textAlign='center';
+  ctx.fillText('⭐ CAMPAÑA '+campLabel, 85, 37);
+
+  // Company name
+  ctx.fillStyle = c.text;
+  ctx.font='bold 15px Segoe UI,Arial,sans-serif';
+  ctx.textAlign='left';
+  ctx.fillText('BASTIDAS S.A.C.', 20, 72);
+
+  // Divider line
+  ctx.fillStyle = c.accent;
+  ctx.fillRect(20, 78, W-40, 3);
+
+  // Title
+  ctx.fillStyle = c.text;
+  ctx.font='bold 26px Segoe UI,Arial,sans-serif';
+  wrapText(ctx, titulo, 20, 118, W-40, 32);
+
+  // Message
+  ctx.font='14px Segoe UI,Arial,sans-serif';
+  ctx.fillStyle = c.text+'CC';
+  wrapText(ctx, msg, 20, 180, W-40, 20);
+
+  // Offer box
+  if(oferta) {
+    ctx.fillStyle = c.accent;
+    roundRect(ctx,20,H-130,W-40,56,10);
+    ctx.fill();
+    ctx.fillStyle = c.bg;
+    ctx.font='bold 16px Segoe UI,Arial,sans-serif';
+    ctx.textAlign='center';
+    wrapText(ctx, oferta, W/2, H-110, W-60, 22, true);
+    ctx.textAlign='left';
+  }
+
+  // WPP contact
+  if(wpp) {
+    ctx.fillStyle = '#25D366';
+    roundRect(ctx,20,H-62,W-40,36,8);
+    ctx.fill();
+    ctx.fillStyle='#fff';
+    ctx.font='bold 14px Segoe UI,Arial,sans-serif';
+    ctx.textAlign='center';
+    ctx.fillText('📱 WhatsApp: '+wpp, W/2, H-39);
+    ctx.textAlign='left';
+  }
+
+  // Bottom line
+  ctx.fillStyle = c.accent;
+  ctx.fillRect(0,H-4,W,4);
+}
+
+function roundRect(ctx,x,y,w,h,r){
+  ctx.beginPath();ctx.moveTo(x+r,y);ctx.lineTo(x+w-r,y);
+  ctx.quadraticCurveTo(x+w,y,x+w,y+r);ctx.lineTo(x+w,y+h-r);
+  ctx.quadraticCurveTo(x+w,y+h,x+w-r,y+h);ctx.lineTo(x+r,y+h);
+  ctx.quadraticCurveTo(x,y+h,x,y+h-r);ctx.lineTo(x,y+r);
+  ctx.quadraticCurveTo(x,y,x+r,y);ctx.closePath();
+}
+
+function wrapText(ctx,text,x,y,maxW,lineH,centered=false){
+  const words=text.split(' ');let line='';
+  for(let i=0;i<words.length;i++){
+    const t=line+words[i]+' ';
+    if(ctx.measureText(t).width>maxW&&i>0){
+      if(centered){const ox=ctx.textAlign;ctx.textAlign='center';ctx.fillText(line,x,y);ctx.textAlign=ox;}
+      else ctx.fillText(line,x,y);
+      line=words[i]+' ';y+=lineH;
+    } else { line=t; }
+  }
+  if(centered){const ox=ctx.textAlign;ctx.textAlign='center';ctx.fillText(line,x,y);ctx.textAlign=ox;}
+  else ctx.fillText(line,x,y);
+}
+
+async function generatePosterWithAI() {
+  const status = document.getElementById('poster-ai-status');
+  status.textContent = '✨ Generando texto del afiche con IA...';
+  status.classList.add('show');
+  const campVal = document.getElementById('poster-camp').value;
+  const campNames = {cap:'captación de nuevos clientes',fid:'fidelización con descuento',rec:'recuperación de clientes inactivos'};
+  try {
+    const res = await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({
+        model:'claude-sonnet-4-6',max_tokens:400,
+        messages:[{role:'user',content:`Genera el contenido para un afiche publicitario de ${campNames[campVal]} para Bastidas S.A.C., empresa de repuestos de línea amarilla (Caterpillar, Komatsu, Scania) en Huancayo, Perú. Responde SOLO en este formato JSON exacto sin markdown:
+{"titulo":"texto del título impactante máx 6 palabras","mensaje":"texto descriptivo máx 15 palabras en 2 líneas","oferta":"oferta o llamada a la acción máx 8 palabras"}`}]
+      })
+    });
+    const data = await res.json();
+    const text = data.content?.[0]?.text || '{}';
+    const clean = text.replace(/```json|```/g,'').trim();
+    const parsed = JSON.parse(clean);
+    if(parsed.titulo) document.getElementById('poster-titulo').value = parsed.titulo;
+    if(parsed.mensaje) document.getElementById('poster-msg').value = parsed.mensaje;
+    if(parsed.oferta) document.getElementById('poster-oferta').value = parsed.oferta;
+    updatePosterPreview();
+    status.textContent = '✅ Afiche generado con IA';
+    toast('Afiche generado con IA');
+  } catch(e) {
+    status.textContent = '⚠️ Error al generar. Intenta de nuevo.';
+  }
+  setTimeout(()=>status.classList.remove('show'),4000);
+}
+
+function downloadPoster() {
+  const canvas = document.getElementById('posterCanvas');
+  const a = document.createElement('a');
+  a.download = 'afiche_bastidas_'+posterType+'_'+Date.now()+'.png';
+  a.href = canvas.toDataURL('image/png');
+  a.click();
+  toast('Afiche descargado como imagen PNG');
+}
+
+// ====== HELPERS ======
+function badge(seg) {
+  return `<span class="badge badge-${seg.toLowerCase()}">${seg}</span>`;
+}
+function setSync(state, txt) {
+  const dot=document.getElementById('syncDot');
+  const stxt=document.getElementById('syncTxt');
+  dot.className='sync-dot sync-'+({ok:'ok',err:'err',load:'load'}[state]||'load');
+  stxt.textContent=txt;
+}
+function showBanner(msg, isErr) {
+  const b=document.getElementById('sync-banner');
+  document.getElementById('sync-banner-msg').textContent=msg;
+  b.className='sync-banner show'+(isErr?' error':'');
+  setTimeout(()=>b.classList.remove('show'),5000);
+}
+function showLoading(msg) {
+  document.getElementById('loadingMsg').textContent=msg;
+  document.getElementById('loadingOverlay').classList.add('show');
+}
+function hideLoading() { document.getElementById('loadingOverlay').classList.remove('show'); }
+function toast(msg) {
+  const t=document.getElementById('toast');
+  document.getElementById('toast-msg').textContent=msg;
+  t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),3000);
+}
+const pageTitles={dashboard:'Dashboard',clientes:'Base de clientes',ltv:'Cálculo LTV',campanas:'Campañas relacionales',editor:'Editor de mensajes',afiches:'Crear afiches',arquitectura:'Arquitectura CRM',indicadores:'Indicadores de control'};
+function showPage(id,el) {
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  document.getElementById('page-'+id).classList.add('active');
+  if(el)el.classList.add('active');
+  document.getElementById('page-title').textContent=pageTitles[id]||id;
+}
+</script>
+</body>
+</html>
